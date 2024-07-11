@@ -7,13 +7,10 @@ console.log("Logs from your program will appear here!!");
 const server = net.createServer((socket) => {
 	socket.on("data", (data) => {
 		const request = data.toString();
-		const [method, path] = request.split(" ");
-
-		if (method === "GET" && path === "/") {
-			socket.write("HTTP/1.1 200 OK\r\n\r\n");
-		} else {
-			socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-		}
+		const path = request.split("/")[1];
+        const contentLength = path.length;
+        console.log('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ' + {contentLength} +'\r\n\r\nabc')
+        
 	});
 
 	socket.on("close", () => {
