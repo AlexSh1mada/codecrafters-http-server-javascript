@@ -23,15 +23,6 @@ const server = net.createServer((socket) => {
 		socket.end();
 	});
 
-	socket.on("data", (data) => {
-		const request = data.toString();
-		const [method, path] = request.split(" ");
-		if (method === "GET" && path === "/") {
-			socket.write("HTTP/1.1 200 OK\r\n\r\n");
-		} else {
-			socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-		}
-	});
 });
 
 server.listen(4221, "localhost");
