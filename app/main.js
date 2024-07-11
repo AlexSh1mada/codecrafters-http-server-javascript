@@ -7,9 +7,10 @@ console.log("Logs from your program will appear here!!");
 const server = net.createServer((socket) => {
 	socket.on("data", (data) => {
 		const request = data.toString();
-		const path = request.split("/")[2];
-        const contentLength = path.length;
-        console.log('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ' + contentLength +'\r\n\r\n' + path)
+		const path = request.split(" ")[1];
+        const content = path.split("/")[1];
+        const contentLength = content.length
+        console.log('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ' + contentLength + '\r\n\r\n' + content)
         
 	});
 
