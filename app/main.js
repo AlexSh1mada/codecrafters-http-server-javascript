@@ -5,12 +5,20 @@ console.log("Logs from your program will appear here!");
 
 // Uncomment this to pass the first stage
 const server = net.createServer((socket) => {
-    socket.write('HTTP/1.1 200 OK\r\n\r\n');
+	socket.on("data", (data) => {
+		const request = data.toString();
+		const [method, path] = request.split(" ");
+
+		if (method === "GET" && path === "/") {
+			socket.write("HTTP/1.1 200 OK\r\n\r\n");
+		} else {
+			socket.write("HTTP/1.1 404 Not Found\r\n\r");
+		}
+	});
+
 	socket.on("close", () => {
 		socket.end();
 	});
 });
 
 server.listen(4221, "localhost");
-
-
