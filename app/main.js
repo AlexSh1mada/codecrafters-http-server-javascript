@@ -9,7 +9,7 @@ const server = net.createServer((socket) => {
 		const request = data.toString();
 		const path = request.split("/")[1];
         const contentLength = path.length;
-        console.log('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ' + {contentLength} +'\r\n\r\nabc')
+        console.log('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ' + contentLength +'\r\n\r\nabc')
         
 	});
 
