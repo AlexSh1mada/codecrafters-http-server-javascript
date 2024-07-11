@@ -7,23 +7,26 @@ console.log("Logs from your program will appear here!!");
 const server = net.createServer((socket) => {
     socket.on("data", (data) => {
 		const request = data.toString();
-		const [method, path] = request.split(" ");
-        const pathEcho = path.split("/")[1];
+		const path = request.split(" ")[1];
         const content = path.split("/")[2];
         const contentLength = content.length;
 
         socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:" + contentLength + "\r\n\r\n" + content);
-
-		if (method === "GET" && pathEcho === "echo") {
-            socket.write("HTTP/1.1 200 OK\r\n\r\n");
-		} else {
-			socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-		}
 	});
 
 	socket.on("close", () => {
 		socket.end();
 	});
 });
+
+    socket.on("data", (data) => {
+        const request = data.toString();
+		const [method, path] = request.split(" ");
+		if (method === "GET" && path === "/") {
+			socket.write("HTTP/1.1 200 OK\r\n\r\n");
+		} else {
+			socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+		}
+    })
 
 server.listen(4221, "localhost");
