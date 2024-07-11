@@ -10,8 +10,9 @@ const server = net.createServer((socket) => {
 		const path = request.split(" ")[1];
         const content = path.split("/")[2];
         const contentLength = content.length
-        socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${contentLength}\r\n\r${content}`)
+        response = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${contentLength}\r\n\r${content}`
         
+        socket.write(response)
 	});
 
 	socket.on("close", () => {
