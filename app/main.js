@@ -18,9 +18,9 @@ const server = net.createServer((socket) => {
             socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:" + 
                 contentLength + "\r\n\r\n" + content);
         } else if (path.startsWith('/user-agent')) {
-            const header = request.split('\r\n')[2]
-            const value = header.substring(0, 11);
-            const [ content, version ] = value.split('/') // Removes 'User-Agent:'
+            const headerUserAgent = request.split('\r\n')[3]
+            const value = headerUserAgent.substring(12);
+            const [ content, version ] = value.split('/')
             socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ' +
                  value.length + "\r\n\r\n" + content + '/' + version)
         } else {
