@@ -29,7 +29,7 @@ const server = net.createServer((socket) => {
         if (url === "/") {
             socket.write(`HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n`);
         } else if (url.startsWith("/echo/")) {
-            const content = path.substring(6); // Remove '/echo/'
+            const content = url.substring(6); // Remove '/echo/'
             const contentLength = content.length;
 
             socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:" + 
