@@ -25,7 +25,7 @@ const server = net.createServer((socket) => {
         }
     });
 
-    function handleGetRequest(socket, url, baseDir) {
+    function handleGetRequest(socket, url, baseDir, request) {
         if (url === "/") {
             socket.write(`HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n`);
         } else if (url.startsWith("/echo/")) {
