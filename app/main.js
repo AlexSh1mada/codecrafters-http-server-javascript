@@ -12,7 +12,7 @@ const server = net.createServer((socket) => {
         const request = data.toString();
         const path = request.split(" ")[1]; // path is the 'url'
 
-        const baseDir = process.argv[2] === '--directory' ? process.argv[3] : '.'
+        //const baseDir = process.argv[2] === '--directory' ? process.argv[3] : '.'
 
         if (path === "/") {
             socket.write(`HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n`);
@@ -37,8 +37,9 @@ const server = net.createServer((socket) => {
                  contentLength + "\r\n\r\n" + userAgent);
 
         } else if (path.startsWith('/files/')) {
+            const directory = process.argv[3];
             const filename = path.substring(7) // removes '/files/' from path
-            const filepath = pathModule.join(baseDir, filename); //join base directory to filename to get full path using pathmodule for path operations
+            const filepath = pathModule.join(directory, filename); //join base directory to filename to get full path using pathmodule for path operations
             const contentType = 'application/octet-stream'
 
             if (fs.existsSync(filepath)) { // Checks if file exists
