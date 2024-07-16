@@ -21,7 +21,8 @@ const server = net.createServer((socket) => {
             const headerUserAgent = request.split('\r\n')[3]
             const value = headerUserAgent.substring(12);
             const [ content, version ] = value.split('/')
-            socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ' +
+            console.log(value.length)
+            socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:' +
                  value.length + "\r\n\r\n" + content + '/' + version)
         } else {
             socket.write(`HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n`);
