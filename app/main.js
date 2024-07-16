@@ -15,16 +15,22 @@ const server = net.createServer((socket) => {
         } else if (path.startsWith("/echo/")) {
             const content = path.substring(6); // Remove '/echo/'
             const contentLength = content.length;
+
             socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:" + 
                 contentLength + "\r\n\r\n" + content);
+
         } else if (path.startsWith('/user-agent')) {
-            const headerUserAgent = request.split('\r\n')[3]
-            const value = headerUserAgent.substring(12);
-            const contentLength = value.length
-            const [ content, version ] = value.split('/')
-            console.log(value.length)
-            socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:' +
-                 contentLength + "\r\n\r\n" + content + '/' + version)
+            const lines = request.split('\r\n');
+            let userAgent = "";
+            for (const line of lines) {
+                if (line.startsWith("User-Agent: ")) {
+                    userAgent = line.substring(12); // Remove 'User-Agent: '
+                    break;
+                }
+            }
+            const contentLength = userAgent.length;
+            socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " +
+                 contentLength + "\r\n\r\n" + userAgent);
         } else {
             socket.write(`HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n`);
         }
