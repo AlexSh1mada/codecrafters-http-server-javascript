@@ -10,20 +10,32 @@ console.log("Logs from your program will appear here!");
 const server = net.createServer((socket) => {
     socket.on("data", (data) => {
         const request = data.toString();
-        const path = request.split(" ")[1]; // path is the 'url'
+        const [requestLine, ...headerLines] = request.split('\r\n');
+        const [method, url] = requestLine.split(' ');
 
-        //const baseDir = process.argv[2] === '--directory' ? process.argv[3] : '.'
+        const baseDir = process.argv[2] === '--directory' ? process.argv[3] : '.'
 
-        if (path === "/") {
+        if( method === 'GET') {
+            handleGetRequest(socket, url, baseDir)
+        } else if (method === 'POST') {
+            handlePostRequest(socket, url, baseDir, request)
+        } else {
+            socket.write('HTTP/1.1 405 Method Not Allowed')
+            socket.end()
+        }
+    });
+
+    function handleGetRequest(socket, url, baseDir) {
+        if (url === "/") {
             socket.write(`HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n`);
-        } else if (path.startsWith("/echo/")) {
+        } else if (url.startsWith("/echo/")) {
             const content = path.substring(6); // Remove '/echo/'
             const contentLength = content.length;
 
             socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:" + 
                 contentLength + "\r\n\r\n" + content);
 
-        } else if (path.startsWith('/user-agent')) {
+        } else if (url.startsWith('/user-agent')) {
             const lines = request.split('\r\n'); // split response into lines
             let userAgent = "";
             for (const line of lines) { 
@@ -36,10 +48,9 @@ const server = net.createServer((socket) => {
             socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " +
                  contentLength + "\r\n\r\n" + userAgent);
 
-        } else if (path.startsWith('/files/')) {
-            const directory = process.argv[3];
-            const filename = path.substring(7) // removes '/files/' from path
-            const filepath = pathModule.join(directory, filename); //join base directory to filename to get full path using pathmodule for path operations
+        } else if (url.startsWith('/files/')) {
+            const filename = url.substring(7) // removes '/files/' from path
+            const filepath = pathModule.join(baseDir, filename); //join base directory to filename to get full path using pathmodule for path operations
             const contentType = 'application/octet-stream'
 
             if (fs.existsSync(filepath)) { // Checks if file exists
@@ -55,7 +66,22 @@ const server = net.createServer((socket) => {
             socket.write(`HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n`);
         }
         socket.end();
-    });
+    }
+
+    function handlePostRequest(socket, url, baseDir, request) {
+        if (url.startsWith('/files/')) {
+            const filename = url.substring(7) //removes '/files/' from path
+            const filepath = pathModule.join(baseDir, filename)
+
+            const body = request.split('\r\n\r\n')[1] // Get the body content of the request
+            fs.writeFileSync(filepath, body) // Write the body content to the file
+
+            const fileSize = Buffer.byteLength(body) // Get the file size
+
+            socket.write('HTTP/1.1 201 Created\r\n\r\n') 
+        }
+        socket.end();
+    }
 
     socket.on("close", () => {
         console.log("Connection closed");
