@@ -16,7 +16,7 @@ const server = net.createServer((socket) => {
         const baseDir = process.argv[2] === '--directory' ? process.argv[3] : '.'
 
         if( method === 'GET') {
-            handleGetRequest(socket, url, baseDir)
+            handleGetRequest(socket, url, baseDir, request)
         } else if (method === 'POST') {
             handlePostRequest(socket, url, baseDir, request)
         } else {
