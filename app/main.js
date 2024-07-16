@@ -31,9 +31,22 @@ const server = net.createServer((socket) => {
         } else if (url.startsWith("/echo/")) {
             const content = url.substring(6); // Remove '/echo/'
             const contentLength = content.length;
+            const lines = request.split('\r\n'); // split response into lines
+            let encoding = '';
+            for(const line of lines) {
+                if (line.startsWith('Accept-Encoding: ')) {
+                    encoding = line.substring(17); // Removes 'Accept-Encoding: '
+                    break;
+                }
+            }
+            if(encoding > 0 === 'gzip') {
+                socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: ' + 
+                    encoding + '\r\n\r\n...')
+            } else {
+                socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:" + 
+                    contentLength + "\r\n\r\n" + content);
+            }
 
-            socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:" + 
-                contentLength + "\r\n\r\n" + content);
 
         } else if (url.startsWith('/user-agent')) {
             const lines = request.split('\r\n'); // split response into lines
