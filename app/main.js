@@ -1,5 +1,6 @@
 const net = require("net");
 const fs = require("fs");
+const zlib = require("zlib");
 const pathModule = require("path");
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -40,10 +41,20 @@ const server = net.createServer((socket) => {
                 }
             }
             if(encoding.includes('gzip')) {
-                socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\n\r\n...')
+                zlib.gzip(content, (err, compressedContent) => {
+                    if (err) {
+                        socket.write('HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n');
+                    } else {
+                        const compressedLength = compressedContent.length;
+                        socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\nContent-Length: ' + compressedLength + '\r\n\r\n');
+                        socket.write(compressedContent);
+                    }
+                    socket.end();
+                });
             } else {
                 socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:" + 
                     contentLength + "\r\n\r\n" + content);
+                socket.end();
             }
 
 
