@@ -46,8 +46,7 @@ const server = net.createServer((socket) => {
                         socket.write('HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n');
                     } else {
                         const compressedLength = compressedContent.length;
-                        socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\nContent-Length: ' + compressedLength + '\r\n\r\n');
-                        socket.write(compressedContent);
+                        socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\nContent-Length: ' + compressedLength + '\r\n\r\n' + compressedContent);
                     }
                 });
             } else {
