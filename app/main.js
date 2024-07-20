@@ -45,7 +45,8 @@ const server = net.createServer((socket) => {
                 const compressedLength = compressedContent.length;
 
                 socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\nContent-Length: ' 
-                + compressedLength + '\r\n\r\n' + compressedContent);
+                + compressedLength + '\r\n\r\n');
+                socket.write(compressedContent);
                 socket.end();
             } else {
                 const contentLength = content.length;
