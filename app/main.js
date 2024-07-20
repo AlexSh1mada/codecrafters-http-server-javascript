@@ -41,16 +41,12 @@ const server = net.createServer((socket) => {
                 }
             }
             if(encoding.includes('gzip')) {
-                zlib.gzip(content, (err, compressedContent) => {
-                    if (err) {
-                        socket.write('HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n');
-                    } else {
-                        const compressedLength = compressedContent.length;
-                        socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\nContent-Length: ' + compressedLength + '\r\n\r\n');
-                        socket.write(compressedContent);
-                    }
-                    socket.end();
-                });
+                const compressedContent = zlib.gzip(content)
+                const compressedLength = compressedContent.length;
+
+                    socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\nContent-Length: ' + compressedLength + '\r\n\r\n');
+                    socket.write(compressedContent);
+                    socket.end();  
             } else {
                 socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:" + 
                     contentLength + "\r\n\r\n" + content);
