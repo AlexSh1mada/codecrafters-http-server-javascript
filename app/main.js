@@ -49,12 +49,10 @@ const server = net.createServer((socket) => {
                         socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\nContent-Length: ' + compressedLength + '\r\n\r\n');
                         socket.write(compressedContent);
                     }
-                    socket.end();
                 });
             } else {
                 socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + 
                     contentLength + "\r\n\r\n" + content);
-                socket.end();
             }
         } else if (url.startsWith('/user-agent')) {
             const lines = request.split('\r\n'); // split response into lines
