@@ -31,65 +31,61 @@ const server = net.createServer((socket) => {
             socket.write(`HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n`);
         } else if (url.startsWith("/echo/")) {
             const content = url.substring(6); // Remove '/echo/'
-            const contentLength = content.length;
-            const lines = request.split('\r\n'); // split response into lines
-            let encoding = '';
-            for(const line of lines) {
-                if (line.startsWith('Accept-Encoding: ')) {
-                    encoding = line.substring(17); // Removes 'Accept-Encoding: '
-                    break;
-                }
-            }
+            const acceptEncoding = headerLines.find(line => line.startsWith('Accept-Encoding: '));
+            const encoding = acceptEncoding ? acceptEncoding.substring(17) : '';
+    
             if (encoding.includes('gzip')) {
                 zlib.gzip(content, (err, compressedContent) => {
                     if (err) {
                         socket.write('HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n');
-
+                        socket.end();
                     } else {
                         const compressedLength = compressedContent.length;
                         socket.write('HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\nContent-Length: ' + compressedLength + '\r\n\r\n');
                         socket.write(compressedContent, () => {
-                            socket.end(); // Ensures that socket.end() is called after writing is complete
+                            socket.end();
                         });
-        
                     }
                 });
             } else {
-                socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + 
-                    contentLength + "\r\n\r\n" + content);
-
+                const contentLength = content.length;
+                socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + contentLength + "\r\n\r\n" + content);
+                socket.end();
             }
+    
         } else if (url.startsWith('/user-agent')) {
-            const lines = request.split('\r\n'); // split response into lines
+            const lines = request.split('\r\n');
             let userAgent = "";
             for (const line of lines) { 
-                if (line.startsWith("User-Agent: ")) { // Compare if the line starts with 'User-Agent: '
-                    userAgent = line.substring(12); // Remove 'User-Agent: '
+                if (line.startsWith("User-Agent: ")) { 
+                    userAgent = line.substring(12); 
                     break;
                 }
             }
             const contentLength = userAgent.length;
-            socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " +
-                 contentLength + "\r\n\r\n" + userAgent);
-
+            socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + contentLength + "\r\n\r\n" + userAgent);
+            socket.end();
+    
         } else if (url.startsWith('/files/')) {
-            const filename = url.substring(7) // removes '/files/' from path
-            const filepath = pathModule.join(baseDir, filename); //join base directory to filename to get full path using pathmodule for path operations
-            const contentType = 'application/octet-stream'
-
-            if (fs.existsSync(filepath)) { // Checks if file exists
-                const fileContent = fs.readFileSync(filepath) // Read file content
-                const fileSize = fileContent.length; //Get file size
-
-                socket.write(`HTTP/1.1 200 OK\r\nContent-Type: ${contentType}\r\nContent-Length: ${fileSize}\r\n\r\n`)
-                socket.write(fileContent) // Write file content response
+            const filename = url.substring(7);
+            const filepath = pathModule.join(baseDir, filename);
+            const contentType = 'application/octet-stream';
+    
+            if (fs.existsSync(filepath)) {
+                const fileContent = fs.readFileSync(filepath);
+                const fileSize = fileContent.length;
+    
+                socket.write(`HTTP/1.1 200 OK\r\nContent-Type: ${contentType}\r\nContent-Length: ${fileSize}\r\n\r\n`);
+                socket.write(fileContent);
             } else {
                 socket.write(`HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n`);
             }
+            socket.end();
+    
         } else {
             socket.write(`HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n`);
+            socket.end();
         }
-        socket.end();
     }
 
     function handlePostRequest(socket, url, baseDir, request) {
